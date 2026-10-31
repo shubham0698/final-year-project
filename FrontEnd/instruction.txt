@@ -1,0 +1,56 @@
+first 
+read README.MD file 
+1) create a home page for the project that should show some information about the project and some useful data 
+        --> add navigation header, hero section and footer
+        --> create a login button on header
+
+2) create a login page 
+    the login page should email and password and user roll 
+
+    also the page should contain [new user register ?]
+
+    api url 
+    localhost:8080/api/auth method POST
+
+    request body
+    {
+    "email": "email",
+    "roll": "roll", //set "default" by default
+    "password":"password"
+    }
+
+
+    response (if valid user ) (200 ok)
+    {
+        "token":31231
+    }
+ 
+    save this token in cookies and pass it for every request 
+
+
+3) register page 
+
+    api 
+    localhost:8080/api/auth/create method POST
+
+    body
+    {
+        "fullName" : "name",
+        "email": "rahul@example.com",
+        "mobileNumber": "9876543210",
+        "profession" : "student",
+        "age" : 19,                
+        "password": "StrongPassword@123"
+    }
+
+    
+
+
+    if all details are valid then server will return 201 (created)
+    then redirect user to the login page 
+
+    
+
+
+
+
