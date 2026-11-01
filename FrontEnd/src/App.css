@@ -1,0 +1,8 @@
+#root { min-height: 100vh; }
+.not-found { display: grid; min-height: 100vh; place-content: center; justify-items: center; gap: 1rem; text-align: center; }
+.not-found h1 { margin: 0; color: var(--color-primary); font-family: var(--font-heading); }
+.not-found p { margin: -.5rem 0 0; color: var(--color-text-secondary); }
+.not-found a { color: var(--color-secondary); }
+.workspace-page { width: 100%; }
+.workspace-placeholder { min-height: 20rem; }
+.workspace-placeholder .empty-state { min-height: 18rem; }

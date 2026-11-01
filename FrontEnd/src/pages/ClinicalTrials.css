@@ -1,0 +1,122 @@
+.clinical-trials-page { display: grid; min-width: 0; gap: var(--space-5); }
+.trials-breadcrumb { display: flex; align-items: center; gap: .45rem; color: var(--color-text-muted); font-size: .72rem; }
+.trials-breadcrumb a { display: grid; width: 1.55rem; height: 1.55rem; place-items: center; border-radius: .35rem; color: var(--color-text-secondary); text-decoration: none; }
+.trials-breadcrumb a:hover { color: var(--color-secondary); background: #eaf5f4; }
+.trials-breadcrumb > span { color: var(--color-primary); font-weight: 600; }
+.trials-page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.25rem; }
+.trials-page-header__copy { min-width: 0; }
+.trials-page-header__eyebrow { display: inline-flex; align-items: center; gap: .45rem; margin-bottom: .35rem; color: var(--color-secondary); font-size: .65rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.trials-demo-dot { width: .4rem; height: .4rem; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 0 3px rgb(22 160 133 / 12%); }
+.trials-page-header h1 { margin: 0; color: var(--color-primary); font-family: var(--font-heading); font-size: clamp(1.7rem, 3vw, 2.15rem); font-weight: 750; letter-spacing: -.05em; line-height: 1.2; }
+.trials-page-header p { margin: .4rem 0 0; color: var(--color-text-secondary); font-size: .84rem; }
+.trials-page-header > .ui-button { flex: 0 0 auto; }
+.trials-notice { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem .85rem; border: 1px solid #cce9df; border-radius: var(--radius-md); color: #176a5b; background: #eff9f5; font-size: .76rem; }
+.trials-notice button { display: grid; width: 1.7rem; height: 1.7rem; flex: 0 0 auto; place-items: center; border: 0; border-radius: .4rem; color: inherit; background: transparent; cursor: pointer; }
+.trials-notice button:hover { background: rgb(22 160 133 / 10%); }
+
+.trials-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+.trials-summary-card { min-width: 0; padding: 1rem 1.1rem; }
+.trials-summary-card__top { display: flex; align-items: center; justify-content: space-between; }
+.trials-summary-card__icon { display: grid; width: 2.25rem; height: 2.25rem; place-items: center; border-radius: .7rem; }
+.trials-summary-card__icon--navy { color: #385775; background: #edf2f6; }
+.trials-summary-card__icon--teal { color: #0f7c7e; background: #e9f5f4; }
+.trials-summary-card__icon--green { color: #148268; background: #eaf7f2; }
+.trials-summary-card__icon--gold { color: #a07422; background: #fff6e5; }
+.trials-summary-card__demo { color: #9aa6b4; font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.trials-summary-card__value { display: block; margin-top: .8rem; color: var(--color-primary); font-family: var(--font-heading); font-size: 1.8rem; font-weight: 750; letter-spacing: -.05em; line-height: 1.1; }
+.trials-summary-card__label { display: block; margin-top: .3rem; color: var(--color-primary); font-size: .76rem; font-weight: 600; }
+.trials-summary-card__detail { display: block; margin-top: .18rem; color: var(--color-text-muted); font-size: .65rem; }
+
+.trials-list-panel { min-width: 0; overflow: hidden; padding: 0; }
+.trials-list-panel__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.2rem 1.25rem 1rem; }
+.trials-list-panel__header h2 { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; margin: 0; color: var(--color-primary); font-family: var(--font-heading); font-size: .98rem; font-weight: 700; letter-spacing: -.02em; }
+.trials-list-panel__header p { margin: .3rem 0 0; color: var(--color-text-muted); font-size: .7rem; }
+.trials-demo-pill { padding: .2rem .5rem; border: 1px solid #d5e9e5; border-radius: var(--radius-pill); color: #267969; background: #f0f8f6; font-family: var(--font-body); font-size: .58rem; font-weight: 600; letter-spacing: 0; }
+.trials-results-count { flex: 0 0 auto; color: var(--color-text-muted); font-size: .7rem; }
+.trials-filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; padding: .8rem 1.25rem; border-top: 1px solid #edf0f4; border-bottom: 1px solid #edf0f4; background: #fbfcfd; }
+.trials-search { display: flex; min-width: min(100%, 240px); height: 2.45rem; flex: 1 1 250px; align-items: center; gap: .55rem; padding: 0 .7rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); color: #8290a0; background: white; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
+.trials-search:focus-within { border-color: var(--color-secondary); box-shadow: var(--focus-ring); }
+.trials-search input { width: 100%; min-width: 0; padding: 0; border: 0; outline: 0; color: var(--color-primary); background: transparent; font-size: .74rem; }
+.trials-search input:focus { box-shadow: none; }
+.trials-search input::placeholder { color: #98a4b1; }
+.trials-select-filter { position: relative; display: block; flex: 0 0 auto; }
+.trials-select-filter::after { position: absolute; top: 50%; right: .7rem; width: .38rem; height: .38rem; border-right: 1.5px solid #718096; border-bottom: 1.5px solid #718096; content: ''; pointer-events: none; transform: translateY(-70%) rotate(45deg); }
+.trials-select-filter select { min-width: 130px; height: 2.45rem; appearance: none; padding: 0 1.8rem 0 .7rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); color: #536477; background: #fff; cursor: pointer; font-size: .72rem; }
+.trials-select-filter select:focus { border-color: var(--color-secondary); outline: none; box-shadow: var(--focus-ring); }
+.trials-filter-bar > .ui-button { min-height: 2.45rem; }
+.trials-table-scroll { width: 100%; overflow-x: auto; scrollbar-color: #c7d2df transparent; scrollbar-width: thin; }
+.trials-table { width: 100%; min-width: 1200px; border-collapse: collapse; text-align: left; }
+.trials-table th { padding: .75rem .8rem; color: #8290a0; background: #f8fafc; font-size: .61rem; font-weight: 700; letter-spacing: .055em; text-transform: uppercase; white-space: nowrap; }
+.trials-table th:first-child, .trials-table td:first-child { padding-left: 1.25rem; }
+.trials-table th:last-child, .trials-table td:last-child { padding-right: 1.25rem; }
+.trials-table td { padding: .75rem .8rem; border-top: 1px solid #edf0f4; color: #536477; font-size: .7rem; white-space: nowrap; }
+.trials-table tbody tr { transition: background var(--transition-fast); }
+.trials-table tbody tr:hover { background: #f8fbfc; }
+.trials-table__id { color: var(--color-secondary) !important; font-weight: 700; }
+.trials-table__name { max-width: 240px; overflow: hidden; color: var(--color-primary) !important; font-weight: 600; text-overflow: ellipsis; }
+.trials-table__date { color: #748397 !important; }
+.trials-phase { padding: .22rem .5rem; border: 1px solid #e3eaf0; border-radius: var(--radius-pill); color: #536477; background: #f8fafc; font-size: .63rem; }
+.trials-participant-count { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-primary); font-variant-numeric: tabular-nums; }
+.trials-participant-count svg { color: #8191a2; }
+.trials-participant-count > span { color: #96a1ae; }
+.trials-row-actions { display: flex; align-items: center; gap: .25rem; }
+.trial-action { display: grid; width: 1.9rem; height: 1.9rem; place-items: center; border: 1px solid transparent; border-radius: .4rem; color: #728297; background: transparent; cursor: pointer; transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast); }
+.trial-action:hover { border-color: #d7e7e5; color: var(--color-secondary); background: #eff8f7; }
+.trial-action--danger:hover { border-color: #f0dada; color: var(--color-danger); background: #fff2f2; }
+.trials-table-hint { display: none; margin: 0; padding: .55rem 1rem; color: var(--color-text-muted); font-size: .64rem; }
+.trials-empty-state { min-height: 17rem; }
+
+.trial-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.trial-form-field { display: grid; min-width: 0; align-content: start; gap: .38rem; }
+.trial-form-field--full { grid-column: 1 / -1; }
+.trial-form-field label { color: var(--color-primary); font-size: .75rem; font-weight: 600; }
+.trial-form-field label span { color: #75869a; }
+.trial-form-field input, .trial-form-field select, .trial-form-field textarea { width: 100%; min-height: 2.65rem; padding: .58rem .72rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); outline: none; color: var(--color-primary); background: #fff; box-shadow: var(--shadow-sm); font-size: .76rem; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
+.trial-form-field input:focus, .trial-form-field select:focus, .trial-form-field textarea:focus { border-color: var(--color-secondary); box-shadow: var(--focus-ring); }
+.trial-form-field input[aria-invalid='true'], .trial-form-field select[aria-invalid='true'], .trial-form-field textarea[aria-invalid='true'] { border-color: var(--color-danger); }
+.trial-form-field textarea { min-height: 6rem; resize: vertical; }
+.trial-form-error { color: var(--color-danger); font-size: .66rem; line-height: 1.4; }
+.trial-form__demo-note { margin-top: 1rem; padding: .6rem .7rem; border: 1px solid #e2eaee; border-radius: var(--radius-sm); color: var(--color-text-secondary); background: #f7fafb; font-size: .67rem; }
+.trial-details__identity { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.trial-details__id { color: var(--color-secondary); font-size: .72rem; font-weight: 700; }
+.trial-details > h3 { margin: 1rem 0 .45rem; color: var(--color-primary); font-family: var(--font-heading); font-size: 1.28rem; letter-spacing: -.03em; }
+.trial-details__description { margin: 0 0 1.25rem; color: var(--color-text-secondary); font-size: .78rem; line-height: 1.65; }
+.trial-details__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; border-top: 1px solid #edf0f4; border-left: 1px solid #edf0f4; }
+.trial-detail { min-width: 0; padding: .8rem; border-right: 1px solid #edf0f4; border-bottom: 1px solid #edf0f4; }
+.trial-detail dt { margin-bottom: .3rem; color: var(--color-text-muted); font-size: .63rem; }
+.trial-detail dd { overflow-wrap: anywhere; margin: 0; color: var(--color-primary); font-size: .75rem; font-weight: 600; }
+.trial-delete-confirm > p:first-child { margin: 0 0 .5rem; color: var(--color-primary); font-size: .82rem; }
+.trial-delete-confirm > p:nth-child(2) { margin: 0; color: var(--color-text-secondary); font-size: .75rem; line-height: 1.6; }
+
+@media (max-width: 1180px) {
+  .trials-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .trials-page-header { align-items: flex-start; }
+  .trials-table-hint { display: block; }
+}
+@media (max-width: 640px) {
+  .clinical-trials-page { gap: 1rem; }
+  .trials-page-header { flex-direction: column; align-items: stretch; }
+  .trials-page-header > .ui-button { align-self: flex-start; }
+  .trials-summary-grid { gap: .65rem; }
+  .trials-summary-card { padding: .8rem; }
+  .trials-summary-card__value { font-size: 1.55rem; }
+  .trials-summary-card__label { min-height: 2.2em; font-size: .7rem; }
+  .trials-summary-card__detail { line-height: 1.4; }
+  .trials-list-panel__header { align-items: flex-start; padding: 1rem .85rem .8rem; }
+  .trials-list-panel__header h2 { gap: .35rem; font-size: .9rem; }
+  .trials-list-panel__header p { max-width: 16rem; font-size: .65rem; }
+  .trials-results-count { padding-top: .2rem; font-size: .62rem; }
+  .trials-filter-bar { gap: .5rem; padding: .75rem .85rem; }
+  .trials-search { min-width: 100%; flex-basis: 100%; }
+  .trials-select-filter { min-width: 0; flex: 1 1 0; }
+  .trials-select-filter select { width: 100%; min-width: 0; }
+  .trials-filter-bar > .ui-button { flex: 1 1 100%; justify-content: center; }
+}
+@media (max-width: 420px) {
+  .trials-summary-grid { grid-template-columns: 1fr 1fr; }
+  .trials-summary-card__detail { font-size: .59rem; }
+  .trial-form__grid, .trial-details__grid { grid-template-columns: 1fr; }
+  .trial-form-field--full { grid-column: auto; }
+}
