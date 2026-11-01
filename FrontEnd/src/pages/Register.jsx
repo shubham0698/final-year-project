@@ -1,15 +1,20 @@
 import { useState } from 'react'
 import { ArrowRight, LockKeyhole, Mail, Phone, UserRound } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+
+import api from '../api/axiosInstance'
+
 import AuthField from '../components/auth/AuthField.jsx'
 import AuthLayout from '../components/auth/AuthLayout.jsx'
 import Button from '../components/Button.jsx'
 import './AuthPages.css'
-
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const initialValues = { fullName: '', email: '', phone: '', password: '', confirmPassword: '' }
 
 export default function Register() {
+  const navigate = useNavigate()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const [values, setValues] = useState(initialValues)
   const [touched, setTouched] = useState({})
   const [showPassword, setShowPassword] = useState(false)
@@ -44,13 +49,67 @@ export default function Register() {
     setFeedback('')
   }
 
-  function handleSubmit(event) {
+
+  async function handleSubmit(event) {
+
     event.preventDefault()
-    setTouched({ fullName: true, email: true, phone: true, password: true, confirmPassword: true, terms: true })
-    if (Object.values(errors).every((error) => !error)) {
-      setFeedback('This interface preview does not create accounts.')
-    } else {
+
+    setTouched({
+      fullName: true,
+      email: true,
+      phone: true,
+      password: true,
+      confirmPassword: true,
+      terms: true
+    })
+
+    // Frontend validation
+    if (!Object.values(errors).every((error) => !error)) {
       setFeedback('Please review the highlighted fields.')
+      return
+    }
+
+    try {
+
+      setIsSubmitting(true)
+      setFeedback('')
+
+      // Send registration details to backend
+      const response = await api.post('/api/auth/create', {
+        fullName: values.fullName.trim(),
+        email: values.email.trim(),
+        phone: values.phone.trim(),
+        password: values.password
+      })
+
+      // Check registration response
+      if (response.status === 201) {
+
+        setFeedback('Registration successful! Redirecting to login...')
+
+        setTimeout(() => {
+          navigate('/login', { replace: true })
+        }, 1500)
+
+      } else {
+
+        setFeedback('Unexpected response from server.')
+
+      }
+
+    } catch (error) {
+
+      console.error('Registration error:', error)
+
+      setFeedback(
+        error.response?.data?.message ||
+        'Registration failed. Please try again.'
+      )
+
+    } finally {
+
+      setIsSubmitting(false)
+
     }
   }
 
@@ -158,8 +217,18 @@ export default function Register() {
         </div>
 
         {feedback && <p className="auth-form-feedback" role="status">{feedback}</p>}
-        <Button className="auth-submit" type="submit" variant="primary" size="large">
-          Create Account <ArrowRight size={17} aria-hidden="true" />
+        <Button
+          className="auth-submit"
+          type="submit"
+          variant="primary"
+          size="large"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Creating Account...' : 'Create Account'}
+
+          {!isSubmitting && (
+            <ArrowRight size={17} aria-hidden="true" />
+          )}
         </Button>
       </form>
 
