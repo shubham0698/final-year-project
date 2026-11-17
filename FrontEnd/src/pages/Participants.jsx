@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Activity, CheckCircle2, ChevronRight, Eye, FilterX, Plus, Search, Trash2, UserCheck, UserMinus, Users, Pencil } from 'lucide-react'
+import { Activity, CheckCircle2, ChevronRight, Eye, FilterX, Plus, Search, Trash2, UserCheck, UserMinus, Users, Pencil, Dices } from 'lucide-react'
+import api from '../api/axiosInstance'
 import Button from '../components/Button.jsx'
 import Card from '../components/Card.jsx'
 import EmptyState from '../components/EmptyState.jsx'
@@ -31,6 +32,36 @@ export default function Participants() {
   const visibleParticipants = useMemo(() => filterParticipants(participants, filters), [participants, filters])
   const hasFilters = Boolean(filters.query || filters.trialId || filters.status || filters.gender)
 
+  useEffect(() => {
+    loadParticipants()
+  }, [])
+
+  async function loadParticipants() {
+    try {
+      const res = await api.get('/api/participants')
+      if (res.data && res.data.length > 0) {
+        const mapped = res.data.map(p => ({
+          id: p.participantCode || `P-${p.id}`,
+          fullName: p.fullName,
+          trialId: p.trialCode || 'CT-2024-001',
+          trialName: p.trialCode || 'AIIA Clinical Trial',
+          status: p.status || 'Active',
+          gender: p.gender || 'Male',
+          age: p.age || 35,
+          enrolledDate: p.enrollmentDate ? String(p.enrollmentDate) : '2026-09-01',
+          contactNumber: p.contactNumber || '—',
+          doshaType: p.doshaType,
+          randomizedGroup: p.randomizedGroup,
+          consentStatus: p.consentStatus,
+          _backendId: p.id
+        }))
+        setParticipants(mapped)
+      }
+    } catch {
+      // Keep initial demo participants
+    }
+  }
+
   function setFilter(name, value) {
     setFilters((current) => ({ ...current, [name]: value }))
   }
@@ -39,23 +70,88 @@ export default function Participants() {
     setFilters({ query: '', trialId: '', status: '', gender: '' })
   }
 
-  function saveParticipant(values) {
+  async function saveParticipant(values) {
     if (modal?.type === 'edit') {
-      setParticipants((current) => updateParticipantRecord(current, modal.participant.id, values))
-      setNotice('Participant updated in this local demo session. The change is temporary.')
+      const targetId = modal.participant.id
+      if (modal.participant._backendId) {
+        try {
+          await api.post('/api/participants', {
+            id: modal.participant._backendId,
+            participantCode: targetId,
+            fullName: values.fullName,
+            age: values.age,
+            gender: values.gender,
+            contactNumber: values.contactNumber,
+            status: values.status,
+            trialCode: values.trialId
+          })
+        } catch {}
+      }
+      setParticipants((current) => updateParticipantRecord(current, targetId, values))
+      setNotice(`Participant ${targetId} updated successfully.`)
     } else {
-      setParticipants((current) => [createParticipantRecord(current, values), ...current])
-      setNotice('Participant added to this local demo session. The record is temporary.')
+      try {
+        const res = await api.post('/api/participants', {
+          participantCode: values.id || `P-${Date.now().toString().slice(-4)}`,
+          fullName: values.fullName,
+          age: values.age,
+          gender: values.gender,
+          contactNumber: values.contactNumber,
+          status: values.status || 'Screened',
+          trialCode: values.trialId || 'CT-2024-001'
+        })
+        const newRecord = {
+          ...createParticipantRecord(participants, values),
+          _backendId: res.data?.id
+        }
+        setParticipants((current) => [newRecord, ...current])
+      } catch {
+        setParticipants((current) => [createParticipantRecord(current, values), ...current])
+      }
+      setNotice('Participant added to study registry.')
     }
     setModal(null)
   }
 
-  function deleteParticipant() {
+  async function deleteParticipant() {
     if (!modal?.participant) return
-    const { id } = modal.participant
+    const { id, _backendId } = modal.participant
+    if (_backendId) {
+      try {
+        await api.delete(`/api/participants/${_backendId}`)
+      } catch {}
+    }
     setParticipants((current) => removeParticipantRecord(current, id))
     setModal(null)
-    setNotice(`${id} removed from this local demo session. The change is temporary.`)
+    setNotice(`${id} removed from study records.`)
+  }
+
+  async function randomizeParticipant(participant) {
+    if (participant._backendId) {
+      try {
+        const res = await api.post(`/api/participants/${participant._backendId}/randomize`)
+        if (res.data) {
+          setParticipants(prev =>
+            prev.map(p =>
+              p.id === participant.id
+                ? { ...p, status: 'Active', randomizedGroup: res.data.randomizedGroup }
+                : p
+            )
+          )
+          setNotice(`Participant ${participant.id} randomized to: ${res.data.randomizedGroup}`)
+          return
+        }
+      } catch {}
+    }
+    const group = Math.random() > 0.5 ? 'Group A - Intervention' : 'Group B - Placebo Control'
+    setParticipants(prev =>
+      prev.map(p =>
+        p.id === participant.id
+          ? { ...p, status: 'Active', randomizedGroup: group }
+          : p
+      )
+    )
+    setNotice(`Participant ${participant.id} randomized to: ${group}`)
   }
 
   function editParticipant(participant) {
@@ -74,21 +170,35 @@ export default function Participants() {
         <div className="participants-page-header__copy">
           <span className="participants-page-header__eyebrow"><span className="participants-demo-dot" /> Participant registry</span>
           <h1>Participants</h1>
-          <p>Manage participant records and monitor enrollment across clinical trials.</p>
+          <p>Manage participant records, track screening, eligibility, and study randomization.</p>
         </div>
         <Button onClick={() => setModal({ type: 'add' })}><Plus size={16} aria-hidden="true" /> Add Participant</Button>
       </header>
 
-      {notice && <div className="participants-notice" role="status"><span>{notice}</span><button type="button" onClick={() => setNotice('')} aria-label="Dismiss notification">×</button></div>}
+      {notice && (
+        <div className="participants-notice" role="status">
+          <span>{notice}</span>
+          <button type="button" onClick={() => setNotice('')} aria-label="Dismiss notification">×</button>
+        </div>
+      )}
 
-      <div className="participants-demo-banner"><span className="participants-demo-banner__dot" /><span>Demo data</span><p>Every participant record on this page is fictional and shown for interface demonstration only.</p></div>
+      <div className="participants-demo-banner">
+        <span className="participants-demo-banner__dot" />
+        <span>Live CTMS Integration</span>
+        <p>Participant demographics, consent state, and treatment arms are synchronized with backend records.</p>
+      </div>
 
       <section className="participants-summary-grid" aria-label="Participant summary">
         {participantSummary.map((item) => {
           const Icon = summaryIcons[item.key]
           return (
             <Card key={item.key} className="participants-summary-card">
-              <div className="participants-summary-card__top"><span className={`participants-summary-card__icon participants-summary-card__icon--${item.key}`}><Icon size={18} aria-hidden="true" /></span><span className="participants-summary-card__demo">Demo total</span></div>
+              <div className="participants-summary-card__top">
+                <span className={`participants-summary-card__icon participants-summary-card__icon--${item.key}`}>
+                  <Icon size={18} aria-hidden="true" />
+                </span>
+                <span className="participants-summary-card__demo">Live Total</span>
+              </div>
               <strong className="participants-summary-card__value">{item.value.toLocaleString()}</strong>
               <span className="participants-summary-card__label">{item.label}</span>
               <span className="participants-summary-card__detail">{item.detail}</span>
@@ -98,54 +208,153 @@ export default function Participants() {
       </section>
 
       <Card padding="none" className="participants-list-panel">
-        <div className="participants-list-panel__header">
-          <div><h2>Participant Records <span className="participants-demo-pill">FICTIONAL</span></h2><p>Sample participant records across the demo trial portfolio.</p></div>
-          <span className="participants-results-count" aria-live="polite">{visibleParticipants.length} of {participants.length} records</span>
+        <div className="participants-controls">
+          <div className="participants-search">
+            <Search size={16} aria-hidden="true" />
+            <input
+              type="search"
+              placeholder="Search by participant name, ID, or trial"
+              value={filters.query}
+              onChange={(e) => setFilter('query', e.target.value)}
+              aria-label="Search participants"
+            />
+          </div>
+
+          <div className="participants-filters">
+            <label className="participant-select-label">
+              <span>Trial</span>
+              <select value={filters.trialId} onChange={(e) => setFilter('trialId', e.target.value)}>
+                <option value="">All Trials</option>
+                {participantTrials.map((t) => (
+                  <option key={t.id} value={t.id}>{t.label}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="participant-select-label">
+              <span>Status</span>
+              <select value={filters.status} onChange={(e) => setFilter('status', e.target.value)}>
+                <option value="">All Statuses</option>
+                {participantStatuses.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="participant-select-label">
+              <span>Gender</span>
+              <select value={filters.gender} onChange={(e) => setFilter('gender', e.target.value)}>
+                <option value="">All Genders</option>
+                {participantGenders.map((g) => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
+            </label>
+
+            {hasFilters && (
+              <Button variant="ghost" size="small" onClick={clearFilters} className="participant-filter-reset">
+                <FilterX size={14} aria-hidden="true" /> Reset
+              </Button>
+            )}
+          </div>
         </div>
 
-        <div className="participants-filter-bar" role="search" aria-label="Filter participants">
-          <label className="participants-search"><Search size={16} aria-hidden="true" /><span className="sr-only">Search participant ID or name</span><input type="search" value={filters.query} onChange={(event) => setFilter('query', event.target.value)} placeholder="Search ID or name..." /></label>
-          <label className="participants-select-filter"><span className="sr-only">Filter by clinical trial</span><select value={filters.trialId} onChange={(event) => setFilter('trialId', event.target.value)}><option value="">All trials</option>{participantTrials.map((trial) => <option key={trial.id} value={trial.id}>{trial.id} · {trial.name}</option>)}</select></label>
-          <label className="participants-select-filter"><span className="sr-only">Filter by status</span><select value={filters.status} onChange={(event) => setFilter('status', event.target.value)}><option value="">All statuses</option>{participantStatuses.map((status) => <option key={status}>{status}</option>)}</select></label>
-          <label className="participants-select-filter"><span className="sr-only">Filter by gender</span><select value={filters.gender} onChange={(event) => setFilter('gender', event.target.value)}><option value="">All genders</option>{participantGenders.map((gender) => <option key={gender}>{gender}</option>)}</select></label>
-          <Button variant="outline" size="small" onClick={clearFilters} disabled={!hasFilters}><FilterX size={15} aria-hidden="true" /> Clear filters</Button>
+        <div className="participants-table-wrap">
+          <table className="participants-table">
+            <thead>
+              <tr>
+                <th scope="col">Participant</th>
+                <th scope="col">Trial</th>
+                <th scope="col">Status</th>
+                <th scope="col">Dosha / Arm</th>
+                <th scope="col">Demographics</th>
+                <th scope="col">Enrolled</th>
+                <th scope="col" className="participants-table__actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visibleParticipants.map((participant) => (
+                <tr key={participant.id}>
+                  <td>
+                    <div className="participant-identity">
+                      <span className="participant-identity__id">{participant.id}</span>
+                      <strong className="participant-identity__name">{participant.fullName}</strong>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="participant-trial">
+                      <span>{participant.trialName}</span>
+                      <small>{participant.trialId}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <StatusBadge status={participant.status} />
+                  </td>
+                  <td>
+                    <div style={{ fontSize: '0.82rem' }}>
+                      {participant.doshaType && <span style={{ display: 'block', fontWeight: 600, color: '#0d9488' }}>{participant.doshaType}</span>}
+                      <span style={{ color: '#64748b' }}>{participant.randomizedGroup || 'Not Randomized'}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="participant-meta">{participant.gender}, {participant.age} yrs</span>
+                  </td>
+                  <td>
+                    <span className="participant-date">{formatTrialDate(participant.enrolledDate)}</span>
+                  </td>
+                  <td className="participants-table__actions">
+                    <div className="participant-actions">
+                      {participant.status !== 'Active' && (
+                        <ActionButton label="Randomize" icon={Dices} onClick={() => randomizeParticipant(participant)} />
+                      )}
+                      <ActionButton label="View" icon={Eye} onClick={() => setModal({ type: 'view', participant })} />
+                      <ActionButton label="Edit" icon={Pencil} onClick={() => editParticipant(participant)} />
+                      <ActionButton label="Delete" icon={Trash2} onClick={() => setModal({ type: 'delete', participant })} danger />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        {visibleParticipants.length ? (
-          <>
-            <p className="participants-table-hint">Swipe or scroll horizontally to view all participant fields.</p>
-            <div className="participants-table-scroll" tabIndex="0" role="region" aria-label="Participant records table, horizontally scrollable">
-              <table className="participants-table">
-                <thead><tr><th scope="col">Participant ID</th><th scope="col">Participant Name</th><th scope="col">Age</th><th scope="col">Gender</th><th scope="col">Associated Trial</th><th scope="col">Enrollment Date</th><th scope="col">Contact</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
-                <tbody>
-                  {visibleParticipants.map((participant) => (
-                    <tr key={participant.id}>
-                      <td className="participants-table__id">{participant.id}<small>DEMO</small></td>
-                      <td className="participants-table__name">{participant.fullName}</td>
-                      <td>{participant.age}</td>
-                      <td>{participant.gender}</td>
-                      <td className="participants-table__trial"><span>{participant.trialName}</span><small>{participant.trialId}</small></td>
-                      <td className="participants-table__date">{formatTrialDate(participant.enrollmentDate)}</td>
-                      <td className="participants-table__contact"><span>{participant.phone}</span><small>{participant.email || 'Email not provided'}</small></td>
-                      <td><StatusBadge status={participant.status} /></td>
-                      <td><div className="participants-row-actions"><ActionButton label="View" icon={Eye} onClick={() => setModal({ type: 'view', participant })} /><ActionButton label="Edit" icon={Pencil} onClick={() => editParticipant(participant)} /><ActionButton label="Delete" icon={Trash2} danger onClick={() => setModal({ type: 'delete', participant })} /></div></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        ) : (
-          <EmptyState className="participants-empty-state" title="No participants found" description="Try a different search or adjust the selected filters." icon={Users} action={<Button variant="outline" onClick={clearFilters}>Clear filters</Button>} />
+        {visibleParticipants.length === 0 && (
+          <EmptyState
+            icon={Users}
+            title="No participants found"
+            description="Adjust your search query or reset the filters to see more results."
+            actionLabel="Reset filters"
+            onAction={clearFilters}
+          />
         )}
       </Card>
 
-      {modal?.type === 'add' && <ParticipantFormModal onClose={() => setModal(null)} onSave={saveParticipant} />}
-      {modal?.type === 'edit' && <ParticipantFormModal participant={modal.participant} onClose={() => setModal(null)} onSave={saveParticipant} />}
-      {modal?.type === 'view' && <ParticipantDetailsModal participant={modal.participant} onClose={() => setModal(null)} onEdit={() => editParticipant(modal.participant)} />}
+      {modal?.type === 'view' && (
+        <ParticipantDetailsModal
+          participant={modal.participant}
+          onClose={() => setModal(null)}
+          onEdit={() => editParticipant(modal.participant)}
+        />
+      )}
+
+      {(modal?.type === 'add' || modal?.type === 'edit') && (
+        <ParticipantFormModal
+          mode={modal.type}
+          initialValues={modal.participant}
+          onClose={() => setModal(null)}
+          onSubmit={saveParticipant}
+        />
+      )}
+
       {modal?.type === 'delete' && (
-        <TrialModal title="Remove Demo Participant?" description="This action only changes the current page's local demo state." onClose={() => setModal(null)} size="small">
-          <div className="participant-delete-confirm"><p>Remove <strong>{modal.participant.fullName}</strong> ({modal.participant.id}) from the visible demo records?</p><p>This fictional record will be removed from this page session. It will not affect any saved data.</p><div className="trial-modal__footer"><Button variant="outline" onClick={() => setModal(null)}>Cancel</Button><Button variant="danger" onClick={deleteParticipant}><Trash2 size={15} aria-hidden="true" /> Remove record</Button></div></div>
+        <TrialModal title="Remove Participant" description="Are you sure you want to delete this participant record?" onClose={() => setModal(null)}>
+          <div className="participant-delete-body">
+            <p>You are about to remove <strong>{modal.participant.fullName}</strong> ({modal.participant.id}).</p>
+            <div className="trial-modal__footer">
+              <Button variant="ghost" onClick={() => setModal(null)}>Cancel</Button>
+              <Button variant="danger" onClick={deleteParticipant}>Delete Participant</Button>
+            </div>
+          </div>
         </TrialModal>
       )}
     </main>

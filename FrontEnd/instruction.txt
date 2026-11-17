@@ -49,7 +49,11 @@ read README.MD file
     if all details are valid then server will return 201 (created)
     then redirect user to the login page 
 
-    
+
+4) create a dummy dashboard and redirect ure on that dashboard for now if user logout then redirect to the home page 
+
+
+
 
 
 

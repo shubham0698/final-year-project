@@ -1,106 +1,99 @@
 package com.coderx.clinic.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "user")
 public class User {
 
-//    Field	Data type	Purpose
-//    id	Long	Primary key
-//    firstName	String	First name
-//    lastName	String	Last name
-//    email	String	Unique email
-//    mobileNumber	String	Contact number
-//    employeeId	String	Staff identification
-//    designation	String	Professional designation
-//    password	String	BCrypt password hash
-//    status	Enum	ACTIVE, INACTIVE, PENDING
-//    createdAt	LocalDateTime	Account creation
-//    updatedAt	LocalDateTime	Last update
-
     @Id
-    Long id;
-    String Name;
-    String email;
-    Long mobile;
-    int age;
-    String designation;
-    String password;
-    String status;
-    LocalDate dateCreated;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String fullName;
+    
+    @Column(unique = true)
+    private String email;
+    
+    private Long phone;
+    private String password;
+    private String status;
+    private LocalDate dateCreated;
+    private String role;
+    private String designation;
+
+    public User() {}
 
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
-    public String getName() {
-        return Name;
+    public String getFullName() {
+        return fullName;
     }
-
-    public void setName(String name) {
-        Name = name;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
-
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public Long getMobile() {
-        return mobile;
+    public Long getPhone() {
+        return phone;
     }
-
-    public void setMobile(Long mobile) {
-        this.mobile = mobile;
+    public void setPhone(Long phone) {
+        this.phone = phone;
     }
-
-    public int getAge() {
-        return age;
+    public String getPassword() {
+        return password;
     }
-
-    public void setAge(int age) {
-        this.age = age;
+    public void setPassword(String password) {
+        this.password = password;
     }
-
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    public LocalDate getDateCreated() {
+        return dateCreated;
+    }
+    public void setDateCreated(LocalDate dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+    public String getRole() {
+        return role;
+    }
+    public void setRole(String role) {
+        this.role = role;
+    }
     public String getDesignation() {
         return designation;
     }
-
     public void setDesignation(String designation) {
         this.designation = designation;
     }
 
-    public String getPassword() {
-        return password;
+    public boolean checkNull() {
+        return this.fullName != null && this.email != null && this.phone != null && this.password != null;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public LocalDate getDateCreated() {
-        return dateCreated;
-    }
-
-    public void setDateCreated(LocalDate dateCreated) {
-        this.dateCreated = dateCreated;
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
+                ", phone=" + phone +
+                ", status='" + status + '\'' +
+                ", dateCreated=" + dateCreated +
+                ", role='" + role + '\'' +
+                '}';
     }
 }
